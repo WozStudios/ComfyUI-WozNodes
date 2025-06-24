@@ -16,6 +16,7 @@ class ImageBatchEditor {
 		this.node = node;
 		this.imageData = [];
 		this.selectedIndex = -1;
+		this.isInitialized = false;
 
 		this.widthWidget = node.widgets.find((w) => w.name === "width");
 		this.heightWidget = node.widgets.find((w) => w.name === "height");
@@ -36,7 +37,7 @@ class ImageBatchEditor {
 		node.addDOMWidget("editor", "app", this.container);
 
 		this.bindEvents();
-		this.updateAndRedraw();
+		setTimeout(() => this.updateAndRedraw(), 0);
 	}
 
 	createEditorPanel() {
@@ -45,6 +46,7 @@ class ImageBatchEditor {
 		panel.style.display = "none";
 
 		const colorGroup = document.createElement("div");
+		colorGroup.className = "editor-row";
 		colorGroup.innerHTML = `<span>Color:</span>`;
 		this.colorInput = document.createElement("input");
 		this.colorInput.type = "color";
@@ -57,6 +59,7 @@ class ImageBatchEditor {
 		panel.appendChild(colorGroup);
 
 		const fileGroup = document.createElement("div");
+		fileGroup.className = "editor-row";
 		this.fileInput = document.createElement("input");
 		this.fileInput.type = "file";
 		this.fileInput.accept = "image/jpeg,image/png,image/webp";
@@ -79,6 +82,17 @@ class ImageBatchEditor {
 	}
 
 	updateAndRedraw() {
+		if (!this.isInitialized) {
+			try {
+				const loadedData = JSON.parse(this.dataWidget.value);
+				if (Array.isArray(loadedData)) {
+					this.imageData = loadedData;
+				}
+			} catch (e) {
+				// Ignore parse errors, will default to an empty array
+			}
+			this.isInitialized = true;
+		}
 		const batchSize = this.batchSizeWidget.value;
 
 		if (this.imageData.length > batchSize) {
@@ -183,21 +197,19 @@ style.innerHTML = `
 }
 .image-batch-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(64px, 1fr));
-    gap: 5px;
+    grid-template-columns: repeat(auto-fill, minmax(48px, 1fr));
+    gap: 0;
     margin-bottom: 10px;
 }
 .grid-cell {
     position: relative;
     cursor: pointer;
-    border: 2px solid transparent;
-	border-radius: 4px;
+    border: 1px solid transparent;
 }
 .grid-cell canvas {
     width: 100%;
     height: auto;
     display: block;
-	border-radius: 4px;
 }
 .grid-cell.selected {
     border-color: var(--accent-color, #00A6ED);
@@ -220,10 +232,11 @@ style.innerHTML = `
     border: 1px solid var(--border-color, #444);
     border-radius: 4px;
 }
-.editor-panel div {
+.editor-panel .editor-row {
     display: flex;
     align-items: center;
     gap: 5px;
+    margin-bottom: 5px;
 }
 .editor-panel button {
     padding: 2px 8px;

@@ -19,7 +19,7 @@ class CreateImageBatch:
             "required": {
                 "width": ("INT", {"default": 512, "min": 64, "max": 4096, "step": 8}),
                 "height": ("INT", {"default": 512, "min": 64, "max": 4096, "step": 8}),
-                "batch_size": ("INT", {"default": 4, "min": 1, "max": 64, "step": 1}),
+                "batch_size": ("INT", {"default": 4, "min": 1, "max": 4096, "step": 1}),
                 "image_data": ("STRING", {"multiline": False, "default": "[]"}),
             }
         }
